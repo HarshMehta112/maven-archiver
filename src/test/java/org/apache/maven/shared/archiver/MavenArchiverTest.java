@@ -1315,6 +1315,26 @@ class MavenArchiverTest {
     }
 
     @ParameterizedTest
+    @ValueSource(
+            strings = {
+                // Arabic-Indic digits (U+0660–U+0669)
+                "٠١٢٣٤٥٦٧٨٩",
+                // Bengali digits (U+09E6–U+09EF)
+                "০১২৩৪",
+                // Devanagari digits (U+0966–U+096F)
+                "०१२३४",
+                // Extended Arabic-Indic digits (U+06F0–U+06F9)
+                "۰۱۲۳۴"
+            })
+    void unicodeDigitsAreRejectedAsTimestamp(String unicodeDigits) {
+        // Character.isDigit() returns true for non-ASCII digits, but Long.parseLong() only accepts ASCII 0-9.
+        // These must not throw NumberFormatException — they must yield IAE with DateTimeParseException cause.
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> MavenArchiver.parseBuildOutputTimestamp(unicodeDigits))
+                .withCauseInstanceOf(DateTimeParseException.class);
+    }
+
+    @ParameterizedTest
     @CsvSource({
         "2011-12-03T10:15:30+01,1322903730",
         "2019-10-05T20:37:42+02,1570300662",
