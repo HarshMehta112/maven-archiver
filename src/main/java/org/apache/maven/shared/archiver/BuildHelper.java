@@ -21,6 +21,7 @@ package org.apache.maven.shared.archiver;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.apache.maven.api.model.Build;
 import org.apache.maven.api.model.Model;
 import org.apache.maven.api.model.Plugin;
 import org.apache.maven.api.model.PluginContainer;
@@ -83,9 +84,10 @@ public class BuildHelper {
      * @return the plugin from build or pluginManagement, if available in project
      */
     public static Plugin getPlugin(Model model, String pluginGa) {
-        Plugin plugin = getPlugin(model.getBuild(), pluginGa);
-        if (model.getBuild() != null && plugin == null) {
-            plugin = getPlugin(model.getBuild().getPluginManagement(), pluginGa);
+        Build build = model.getBuild();
+        Plugin plugin = getPlugin(build, pluginGa);
+        if (build != null && plugin == null) {
+            plugin = getPlugin(build.getPluginManagement(), pluginGa);
         }
         return plugin;
     }
