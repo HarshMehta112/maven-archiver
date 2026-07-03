@@ -253,7 +253,7 @@ public class MavenArchiver {
         }
 
         DependencyResolverResult result;
-        if (config.isAddClasspath() || config.isAddExtensions()) {
+        if (config.isAddClasspath()) {
             result = session.getService(DependencyResolver.class).resolve(session, project, PathScope.MAIN_RUNTIME);
         } else {
             result = null;

@@ -76,6 +76,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class MavenArchiverTest {
@@ -1434,5 +1436,24 @@ class MavenArchiverTest {
     void reproducibleJar19700101() throws Exception {
         long entryTime = testReproducibleJarEntryTime("1970", "10");
         assertThat(entryTime).isGreaterThanOrEqualTo(0);
+    }
+
+    @Test
+    void addExtensionsAloneDoesNotTriggerDependencyResolution() throws Exception {
+        MavenArchiver archiver = new MavenArchiver();
+
+        ProjectStub project = new ProjectStub();
+        project.setModel(Model.newBuilder().artifactId("dummy").build());
+
+        ManifestConfiguration manifestConfig = new ManifestConfiguration();
+        manifestConfig.setAddExtensions(true);
+        manifestConfig.setAddClasspath(false);
+
+        MavenArchiveConfiguration archiveConfiguration = new MavenArchiveConfiguration();
+        archiveConfiguration.setManifest(manifestConfig);
+
+        archiver.getManifest(session, project, archiveConfiguration);
+
+        verify(dependencyResolver, never()).resolve(any(), any(Project.class), any());
     }
 }
